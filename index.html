@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}Buble Book — descubra sua próxima história{% endblock %}
+{% block content %}
+<section class="hero-section">
+    <div class="hero-bubble bubble-one"></div><div class="hero-bubble bubble-two"></div><div class="hero-bubble bubble-three"></div>
+    <div class="hero-grid page-width">
+        <div class="hero-copy">
+            <div class="eyebrow"><span class="eyebrow-star">✦</span> SUA NOVA BIBLIOTECA FAVORITA</div>
+            <h1>Tem sempre uma história que combina <span>com você.</span></h1>
+            <p class="hero-lede">Dê uma pausa no mundo lá fora e entre em outro. Descubra histórias, encontre novos favoritos e deixe a imaginação passear.</p>
+            <div class="hero-actions">
+                <a class="button button-primary" href="#biblioteca">Explorar a biblioteca <span aria-hidden="true">↗</span></a>
+                <a class="button button-soft" href="#mascote">Conheça o pato <span aria-hidden="true">♡</span></a>
+            </div>
+            <div class="hero-points"><span><i>✓</i> Descoberta fácil</span><span><i>✓</i> Leitura acolhedora</span></div>
+            <div class="hero-handwriting">uma página de cada vez <span>〰</span></div>
+        </div>
+        <div class="hero-visual" aria-label="Nosso pato mascote lendo um livro">
+            <div class="hero-picture-frame"><img src="{{ url_for('static', filename='images/pato-leitura.webp') }}" alt="Pato mascote de pijama azul lendo um livro, com uma nuvem de pensamento sobre café e biscoitos" fetchpriority="high"></div>
+            <div class="hero-sticker sticker-top"><span>✿</span><b>Leia no<br>seu ritmo</b></div>
+            <div class="hero-sticker sticker-bottom"><span class="sticker-heart">♡</span><b>O pato leitor<br>aprova!</b></div>
+            <span class="hero-doodle doodle-a">✦</span><span class="hero-doodle doodle-b">✧</span>
+        </div>
+    </div>
+    <div class="hero-bottom-strip"><span>♥</span> LIVROS PARA DESPERTAR IDEIAS <i></i> HISTÓRIAS PARA LEVAR COM VOCÊ <span>♥</span></div>
+</section>
+
+<section class="quick-benefits page-width" aria-label="Benefícios da biblioteca">
+    <article><span class="benefit-icon pink-icon">⌕</span><div><strong>Descubra</strong><small>Pesquise por título, autor ou gênero.</small></div></article>
+    <article><span class="benefit-icon yellow-icon">✦</span><div><strong>Escolha</strong><small>Encontre um tema que combine com você.</small></div></article>
+    <article><span class="benefit-icon mint-icon">♡</span><div><strong>Aconchegue-se</strong><small>Abra uma amostra e comece a ler.</small></div></article>
+</section>
+
+<section class="library-section page-width" id="biblioteca">
+    <div class="section-heading">
+        <div><span class="section-kicker">A ESTANTE DA BUBLE</span><h2>Qual história vamos abrir <span>hoje?</span></h2><p>Uma seleção para inspirar sua próxima aventura.</p></div>
+        <div class="duck-note"><span>✿</span> Dica do pato: curiosidade combina com qualquer gênero.</div>
+    </div>
+
+    <form class="search-form" action="{{ url_for('inicio') }}#biblioteca" method="get" role="search">
+        <label class="search-input-wrap"><span aria-hidden="true">⌕</span><input type="search" name="q" value="{{ busca }}" placeholder="Buscar livro, autor ou gênero..." aria-label="Buscar livro, autor ou gênero"></label>
+        {% if categoria != 'Todas' %}<input type="hidden" name="categoria" value="{{ categoria }}">{% endif %}
+        <button class="button button-primary search-button" type="submit">Buscar <span>→</span></button>
+    </form>
+
+    <div class="category-list" aria-label="Filtrar por gênero">
+        {% for item in categorias %}
+        <a class="category-chip {% if item == categoria %}active{% endif %}" href="{{ url_for('inicio', categoria=item if item != 'Todas' else None, q=busca or None) }}#biblioteca">{% if item == 'Todas' %}✿ {% endif %}{{ item }}</a>
+        {% endfor %}
+    </div>
+
+    <div class="result-line"><span>{{ livros|length }} {% if livros|length == 1 %}livro encontrado{% else %}livros encontrados{% endif %}</span><span class="result-dot"></span><span>Um bom começo para uma nova história</span></div>
+
+    {% if livros %}
+    <div class="book-grid">
+        {% for livro in livros %}
+        <article class="book-card">
+            <a class="book-card-link" href="{{ url_for('ler_livro', slug=livro.slug) }}" aria-label="Ver {{ livro.titulo }}">
+                <div class="book-cover cover-{{ livro.capa }}">
+                    <span class="cover-brand">BUBLE BOOK <b>✦</b></span>
+                    <span class="cover-deco cover-deco-one">✧</span><span class="cover-symbol">{{ livro.simbolo }}</span><span class="cover-deco cover-deco-two">✿</span>
+                    <div class="cover-title-wrap"><span class="cover-smallline">UMA HISTÓRIA PARA DESCOBRIR</span><h3>{{ livro.titulo }}</h3><span class="cover-author">{{ livro.autor }}</span></div>
+                </div>
+                <div class="book-card-info">
+                    <div class="book-card-topline"><span class="genre-tag">{{ livro.genero }}</span>{% if livro.pronto_para_leitura %}<span class="availability available">{{ livro.selo }}</span>{% else %}<span class="availability pending">Em preparação</span>{% endif %}</div>
+                    <h3>{{ livro.titulo }}</h3><p class="book-author">por {{ livro.autor }}</p><p class="book-description">{{ livro.descricao }}</p>
+                    <span class="card-link">{% if livro.pronto_para_leitura %}Conhecer história{% else %}Ver detalhes{% endif %} <b>↗</b></span>
+                </div>
+            </a>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state"><div class="empty-duck">🦆</div><h3>O pato procurou por toda a estante…</h3><p>Não encontramos nenhum livro com esses termos. Tente outra busca ou veja o catálogo completo.</p><a class="button button-primary" href="{{ url_for('inicio') }}#biblioteca">Mostrar todos os livros</a></div>
+    {% endif %}
+</section>
+
+<section class="mascot-section page-width" id="mascote">
+    <div class="mascot-card">
+        <div class="mascot-image-wrap"><img src="{{ url_for('static', filename='images/pato-cafe.webp') }}" alt="Pato mascote usando óculos escuros e segurando uma xícara de café" loading="lazy"></div>
+        <div class="mascot-copy"><span class="section-kicker">NOSSO COMPANHEIRO DE LEITURA</span><h2>Este é o Pato. <span>Ele leva a leitura a sério.</span></h2><p>Quer dizer… mais ou menos. Ele recomenda um bom livro, uma pausa para o café e biscoitos para acompanhar cada capítulo. O Pato está aqui para lembrar que ler pode ser leve, divertido e do seu jeito.</p><a class="text-link" href="#biblioteca">Escolher uma história com o Pato <span>→</span></a></div>
+        <span class="mascot-spark spark-one">✦</span><span class="mascot-spark spark-two">♡</span>
+    </div>
+</section>
+
+<section class="about-section page-width" id="sobre">
+    <div class="about-copy"><span class="section-kicker">UM PROJETO FEITO COM CARINHO</span><h2>A gente acredita que cada pessoa merece encontrar <span>sua próxima história.</span></h2><p>A Buble Book é um protótipo de biblioteca digital pensado para deixar a descoberta de livros simples, bonita e acolhedora. Este espaço está crescendo aos poucos, página por página.</p></div>
+    <div class="about-stamp"><span class="stamp-star">✦</span><strong>VIRE A<br>PRÓXIMA<br>PÁGINA</strong><span class="stamp-heart">♡</span><small>BUBLE BOOK</small></div>
+</section>
+{% endblock %}

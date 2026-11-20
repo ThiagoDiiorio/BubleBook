@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}{{ livro.titulo }} — Buble Book{% endblock %}
+{% block head %}
+{% if livro.epub_disponivel %}<script src="https://cdn.jsdelivr.net/npm/epubjs/dist/epub.min.js"></script>{% endif %}
+{% endblock %}
+{% block content %}
+<section class="reader-page page-width">
+    <a class="back-link" href="{{ url_for('inicio') }}#biblioteca">← Voltar para a biblioteca</a>
+    <div class="reader-heading">
+        <div class="reader-cover cover-{{ livro.capa }}"><span class="cover-brand">BUBLE BOOK <b>✦</b></span><span class="cover-deco cover-deco-one">✧</span><span class="cover-symbol">{{ livro.simbolo }}</span><span class="cover-deco cover-deco-two">✿</span><div class="cover-title-wrap"><span class="cover-smallline">UMA HISTÓRIA PARA DESCOBRIR</span><h2>{{ livro.titulo }}</h2><span class="cover-author">{{ livro.autor }}</span></div></div>
+        <div class="reader-title-copy"><span class="section-kicker">{{ livro.genero|upper }} · BUBLE BOOK</span><h1>{{ livro.titulo }}</h1><p class="reader-byline">por <strong>{{ livro.autor }}</strong></p><p class="reader-description">{{ livro.descricao }}</p><div class="reader-badges"><span>♡ Um cantinho de leitura</span><span>✦ Leia no seu ritmo</span></div></div>
+    </div>
+
+    {% if livro.epub_disponivel %}
+    <section class="epub-reader" aria-label="Leitor digital">
+        <div class="epub-toolbar"><span class="epub-toolbar-title">Sua leitura</span><div class="epub-toolbar-actions"><button type="button" id="prev-page" aria-label="Página anterior">← Anterior</button><span id="page-status" aria-live="polite">Abrindo livro…</span><button type="button" id="next-page" aria-label="Próxima página">Próxima →</button><button type="button" id="font-down" aria-label="Diminuir tamanho do texto">A−</button><button type="button" id="font-up" aria-label="Aumentar tamanho do texto">A+</button></div></div>
+        <div id="epub-viewer"></div><p id="epub-error" class="reader-status" role="status"></p>
+        <noscript><p>Ative JavaScript no navegador para usar o leitor EPUB.</p></noscript>
+    </section>
+    {% elif livro.texto %}
+    <article class="sample-reader">
+        <div class="sample-reader-top"><span>✿ AMOSTRA DE LEITURA</span><span>Texto original para demonstração</span></div>
+        <div class="sample-text" id="sample-text">{% for paragrafo in livro.texto %}<p>{{ paragrafo }}</p>{% endfor %}</div>
+        <div class="sample-reader-bottom"><span>Você chegou ao fim desta amostra. ♡</span><div><button type="button" data-sample-font="-1">A−</button><button type="button" data-sample-font="1">A+</button></div></div>
+    </article>
+    {% else %}
+    <section class="book-unavailable">
+        <div class="unavailable-mascot"><img src="{{ url_for('static', filename='images/pato-leitura.webp') }}" alt="Pato mascote lendo um livro" loading="lazy"></div>
+        <div><span class="section-kicker">ESTAMOS PREPARANDO A ESTANTE</span><h2>Este título está no catálogo, mas a leitura ainda não foi ativada.</h2><p>Quando houver uma edição digital cuja disponibilização online esteja autorizada, ela poderá ser adicionada à pasta <code>static/books/</code> e vinculada a esta página. Nenhum visitante precisará selecionar o arquivo manualmente.</p><a class="button button-primary" href="{{ url_for('inicio') }}#biblioteca">Voltar ao catálogo</a></div>
+    </section>
+    {% endif %}
+    <div class="reader-duck-tip"><img src="{{ url_for('static', filename='images/pato-cafe.webp') }}" alt="O Pato mascote" loading="lazy"><p><strong>Recadinho do Pato:</strong> estique as pernas, tome uma água e volte para mais um capítulo quando estiver pronto. <span>♡</span></p></div>
+</section>
+{% endblock %}
+{% block scripts %}
+{% if livro.epub_disponivel %}
+<script>
+(function () {
+    const status = document.getElementById('page-status');
+    const error = document.getElementById('epub-error');
+    let rendition = null;
+    let fontSize = 100;
+
+    if (typeof window.ePub !== 'function') {
+        status.textContent = 'Leitor não carregado';
+        error.textContent = 'Não foi possível carregar o leitor EPUB. Confira a conexão com a internet e atualize a página.';
+        return;
+    }
+
+    const book = window.ePub({{ livro.epub_url|tojson }});
+    rendition = book.renderTo('epub-viewer', {
+        width: '100%', height: '100%', spread: 'none', flow: 'paginated'
+    });
+
+    rendition.display().then(function () {
+        status.textContent = 'Boa leitura!';
+        rendition.themes.fontSize(fontSize + '%');
+    }).catch(function () {
+        status.textContent = 'Não foi possível abrir o EPUB';
+        error.textContent = 'Verifique se o arquivo EPUB está íntegro e se a disponibilização online está autorizada.';
+    });
+
+    rendition.on('relocated', function (location) {
+        const displayed = location && location.start && location.start.displayed;
+        if (displayed && displayed.total) {
+            status.textContent = 'Página ' + displayed.page + ' de ' + displayed.total;
+        }
+    });
+
+    document.getElementById('prev-page').addEventListener('click', () => rendition && rendition.prev());
+    document.getElementById('next-page').addEventListener('click', () => rendition && rendition.next());
+    document.getElementById('font-down').addEventListener('click', function () {
+        fontSize = Math.max(70, fontSize - 10);
+        rendition.themes.fontSize(fontSize + '%');
+    });
+    document.getElementById('font-up').addEventListener('click', function () {
+        fontSize = Math.min(180, fontSize + 10);
+        rendition.themes.fontSize(fontSize + '%');
+    });
+})();
+</script>
+{% endif %}
+{% endblock %}

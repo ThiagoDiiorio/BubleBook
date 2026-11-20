@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#ed2757">
+    <meta name="description" content="Buble Book: uma biblioteca digital para descobrir histórias e ler com carinho.">
+    <title>{% block title %}Buble Book — histórias que aproximam{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="top-ribbon"><span class="ribbon-bubble">✦</span> UM CANTINHO FEITO PARA QUEM AMA HISTÓRIAS <span class="ribbon-bubble">✦</span></div>
+    <header class="site-header">
+        <div class="nav-wrap">
+            <a class="brand" href="{{ url_for('inicio') }}" aria-label="Buble Book, página inicial">
+                <span class="brand-mark" aria-hidden="true"><span>b</span><i></i></span>
+                <span class="brand-copy"><strong>BUBLE <em>BOOK</em></strong><small>seu mundo em cada página</small></span>
+            </a>
+            <button class="menu-toggle" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav-links">☰</button>
+            <nav class="nav-links" id="nav-links" aria-label="Navegação principal">
+                <a href="{{ url_for('inicio') }}">Início</a>
+                <a href="{{ url_for('inicio') }}#biblioteca">Biblioteca</a>
+                <a href="{{ url_for('inicio') }}#sobre">Sobre nós</a>
+                <a class="nav-button" href="{{ url_for('inicio') }}#biblioteca">Encontrar um livro <span>↗</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <main>{% block content %}{% endblock %}</main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <a class="brand footer-brand" href="{{ url_for('inicio') }}">
+                <span class="brand-mark" aria-hidden="true"><span>b</span><i></i></span>
+                <span class="brand-copy"><strong>BUBLE <em>BOOK</em></strong><small>seu mundo em cada página</small></span>
+            </a>
+            <p>Feito com carinho, páginas e um pato que nunca dispensa uma boa leitura. <span>♡</span></p>
+            <small>© {{ ano_atual }} Buble Book · Protótipo acadêmico</small>
+        </div>
+    </footer>
+    <script src="{{ url_for('static', filename='js/site.js') }}" defer></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

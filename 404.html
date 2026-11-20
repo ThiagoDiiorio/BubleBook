@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}Página não encontrada — Buble Book{% endblock %}
+{% block content %}
+<section class="not-found page-width"><span class="not-found-icon">🦆</span><span class="section-kicker">PÁGINA NÃO ENCONTRADA</span><h1>O Pato se perdeu entre as páginas.</h1><p>O endereço que você abriu não existe ou mudou de lugar.</p><a class="button button-primary" href="{{ url_for('inicio') }}">Voltar para o início ↗</a></section>
+{% endblock %}
